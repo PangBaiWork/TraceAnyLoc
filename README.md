@@ -8,7 +8,10 @@
 - 支持任意地址进入
 - 任意地址退出
 - 支持任意地址范围逃离/返回。
-- 自动上下文同步
+- 自动上下文同步 
+
+
+[![QQ](https://img.shields.io/badge/Join-QQ_Group-ff69b4)](https://qm.qq.com/q/1wJcBUfst2)
 
 支持平台：Windows、Linux、Android (均仅支持64位)
 注：因为没有相关硬件设备，暂未支持Ios和MacOS。
@@ -41,9 +44,12 @@ pip install frida-tools==13.7.1
 ```
 本仓库`test`文件夹存放三种使用脚本，需要按需修改。 
 
-`cli_trace_linux.py`使用`trace_input.js`，日志会存在于子文件夹`linux`下。
-`cli_trace_windows.py`使用`trace_input2.js`，日志会存在于子文件夹`windows`下。
-安卓平台需使用`trace_input3.js`，由于案例过于敏感，本处不做过多解释。
+`cli_trace_linux.py`使用`trace_input.js`，日志会存在于子文件夹`linux`下。 
+
+`cli_trace_windows.py`使用`trace_input2.js`，日志会存在于子文件夹`windows`下。 
+
+安卓平台需使用`trace_input3.js`，由于案例过于敏感，本处不做过多解释。 
+
 测试使用 `浙江省网安省赛赛题 - Warning` 以及 `N1CTF Junior 2025 - TrueOperator` 进行测试，侵联则删。 
 ## 开源许可证
 本仓库的二进制静态链接自多个第三方库，并在遵循各个开源协议的前提下进行分发。 
