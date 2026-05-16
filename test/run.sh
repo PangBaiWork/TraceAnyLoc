@@ -1,0 +1,1 @@
+./ark_js_vm chal.abc
