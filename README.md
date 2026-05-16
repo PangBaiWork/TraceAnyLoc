@@ -63,7 +63,7 @@ arg[0] = 0x40
 arg[1] = 0x26
 ```
 windows
-```
+```asm
 TrueOperator.exe:0x700d0:	mov	qword ptr [rsp + 0x68], rdx   RDX=0x9a19fff810 RSP=0x9a19fff700 | | W[0x9a19fff768]=0x9a19fff810 <0x8> 
 TrueOperator.exe:0x700d5:	mov	qword ptr [rsp + 0x70], r8    R8=0x7ffa4dfa0990 RSP=0x9a19fff700 | | W[0x9a19fff770]=0x7ffa4dfa0990 <0x8> 
 TrueOperator.exe:0x700da:	mov	qword ptr [rsp + 0x78], r9    R9=0x0 RSP=0x9a19fff700 | | W[0x9a19fff778]=0x0 <0x8> 
@@ -93,7 +93,7 @@ TrueOperator.exe:0x703a0:	jmp	qword ptr [rip + 0xf092]      RIP=0x7ff783e003a0 |
 call ucrtbase.dll:strlen R[0x7ff783e0f438]=0x7ffa4decc9f0 <0x8> 
 ```
 android
-```
+```asm
 libhookme.so:0xcbd30:   ldur    x0, [x29, #-0x8]             X29=0x7ffbed5e80 X0=0xb400007d8e496d00 | X0=0xb400007d8e496d00 | R[0x7ffbed5e78]=0xb400007d8e496d00 <0x8>
 libhookme.so:0xcbd34:   ldr     x8, [x0]                      X0=0xb400007d8e496d00 X8=0x0 | X8=0x7d852207f8 | R[0xb400007d8e496d00]=0x7d852207f8 <0x8>
 libhookme.so:0xcbd38:   ldr     x8, [x8, #0x388]              X8=0x7d852207f8 X8=0x7d852207f8 | X8=0x7d84e96754 | R[0x7d85220b80]=0x7d84e96754 <0x8>
