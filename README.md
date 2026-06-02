@@ -3,7 +3,7 @@
 
 多平台统一日志格式，可自定义绕过多种导致控制流中断的代码(异常/中断等)，可用于控制流分析/VMP分析/混淆分析等常见二进制分析场景。
 - 全平台函数调用符号
-- 函数调用参数打印
+- 函数调用参数打印 (指针自动hexdump)
 - 自实现污点分析
 - Triton污点分析
 - 指令执行前后寄存器监控
@@ -20,11 +20,27 @@
 支持平台：Windows、Linux、Android (均仅支持64位)
 注：因为没有相关硬件设备，暂未支持Ios和MacOS。
 日志格式如下：
-
-Trace模式：
+Trace模式:
+```
+ADDR: 污点跟踪模式, 
+BIN: 带指令HEX的Trace模式, 
+DEBUG: 带额外调试信息的模式,
+TRACE: 通用Trace模式, 
+TRITON: Triton污点跟踪模式(极慢), 
+TRACE_ARGS: 带函数调用参数打印的Trace模式,
+```
+Trace格式:
 ```
 模块:偏移:指令  执行前寄存器|执行后寄存器|内存读写[读写地址]="字符串"/HEX
 ```
+功能函数
+```
+set_function_print(count,len) // 设置TRACE_ARGS模式默认打印参数个数和Hexdump长度,CPP函数会自动解析参数不受个数限制
+set_taint_str(str) // 设置污点化的字符串内容，在CTF中为测试的字符串即可
+trace(start,end,1,mode) // 设置trace启动和结束地址和trace模式
+set_log_path(path) //日志输出地址，不设置默认当前目录，安卓需要特别设置
+```
+日志示例
 ```asm
 Warning:0x112c:	mov	ecx, 0x80                      RCX=0x55c7dd4e3210 | RCX=0x80 |
 Warning:0x1131:	mov	rdx, rbx                       RBX=0x10a RDX=0x1 | RDX=0x10a |
@@ -150,10 +166,6 @@ arg[2] = 0xb400007d8e558c00 -> 0x7d8e558c00:
 7d8e558c30000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 
 ```
-## 静态ELF文件的分析
-静态ELF文件在二进制注入时存在特殊之处，无法直接使用本工具套件。 
-
-可使用 [StaticElfLoader](https://github.com/PangBaiWork/StaticElfLoader) 加载运行后再使用本工具分析。
 ## 开始使用
 安装依赖
 ```bash
@@ -161,14 +173,23 @@ pip install frida
 pip install frida-tools
 ```
 本仓库`test`文件夹存放三种使用脚本，需要按需修改。 
+### Linux
+`cli_trace_linux.py`使用`trace_input_linux.js`，修改后直接执行即可。  
+静态ELF文件在二进制注入时存在特殊之处，无法直接使用本工具套件。  
+可使用 [StaticElfLoader](https://github.com/PangBaiWork/StaticElfLoader) 加载运行后再使用本工具分析。 
+### Windows
+`cli_trace_windows.py`使用`trace_input_windows.js`，修改后直接执行即可。 
+### Android
+```bash
+adb push libtal.so /data/local/tmp/.
+adb shell "su -c 'cp /data/local/tmp/libtal.so /data/data/com.taobao.taobao/libtal.so'"
+adb shell "su -c 'chmod 777 /data/data/com.taobao.taobao/libtal.so'"
+```
+安卓平台需使用`cli_trace_android.py`和`trace_input_android.js`，由于案例过于敏感，本处不做过多解释。 
 
-`cli_trace_linux.py`使用`trace_input_linux.js`，日志会存在于子文件夹`linux`下。 
-
-`cli_trace_windows.py`使用`trace_input_windows.js`，日志会存在于子文件夹`windows`下。 
-
-安卓平台需使用`trace_input_android.js`，由于案例过于敏感，本处不做过多解释。 
 
 
+### 关于附件说明
 测试使用 `浙江省网安省赛赛题 - Warning` , `N1CTF Junior 2025 - TrueOperator` 以及 `强网杯2025 - ark_js_vm` 进行测试，侵联则删。 
 ## 开源许可证
 本仓库的二进制静态链接自多个第三方库，并在遵循各个开源协议的前提下进行分发。 

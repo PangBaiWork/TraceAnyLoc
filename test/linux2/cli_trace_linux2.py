@@ -3,23 +3,32 @@ import threading
 import time
 
 from frida_tools.application import Reactor
+
 import frida
 
-input_str = """111111111111111111111111111111111111111111111111\n"""
-print("input:", input_str)
+input_str = """flag{11111111111111111111111111111111}\n"""
+print("input:",input_str)
+target = "./ark_js_vm"
+script_file = "trace_input_linux2.js"
+time_to_input = 0
+android = False
+pause_before_target_loaded = True
+attach = False
 
-target = ".\\TrueOperator.exe"
-script_file = "trace_input_windows.js"
-args = [target, input_str]
-time_to_input = 1
 
+if android:
+    args = [target]
+else:
+    args = [target,"chal.abc"]
 
 class Application:
     def __init__(self):
         self._stop_requested = threading.Event()
         self._reactor = Reactor(run_until_return=lambda reactor: self._stop_requested.wait())
-
-        self._device = frida.get_local_device()
+        if android:
+            self._device = frida.get_usb_device()
+        else:
+            self._device = frida.get_local_device()
         self._sessions = set()
         self._pids = set()
 
@@ -41,7 +50,16 @@ class Application:
         }
 
         print(f"✔ spawn(argv={argv})")
-        pid = self._device.spawn(argv, env=env, stdio="pipe")
+        if android:
+            if attach:
+                pid = self._device.get_frontmost_application().pid
+            else:
+                pid = self._device.spawn(argv)
+        else:
+            if attach:
+                pid = self._device.get_process(target).pid
+            else:
+                pid = self._device.spawn(argv, env=env, stdio="pipe")
         self._instrument(pid)
 
     def _stop_if_idle(self):
@@ -62,9 +80,9 @@ class Application:
                 lambda: self._on_detached(pid, session, reason)
             )
         )
-
-        print("✔ enable_child_gating()")
-        session.enable_child_gating()
+        if not android:
+            print("✔ enable_child_gating()")
+            session.enable_child_gating()
 
         print("✔ create_script()")
         with open(script_file, "r", encoding="utf-8") as file:
@@ -81,7 +99,8 @@ class Application:
 
         print("✔ load()")
         script.load()
-
+        if not pause_before_target_loaded:
+            self._device.resume(pid)
         self._sessions.add(session)
 
     def write_input(self, pid, input_str):
@@ -91,8 +110,8 @@ class Application:
             time.sleep(time_to_input)
         else:
             input("Enter to input")
-
-        self._device.input(target=pid, data=input_str.encode())
+        if not android:
+            self._device.input(target=pid, data=input_str.encode())
 
     def _on_child_added(self, child):
         print(f"⚡ child_added: {child}")
@@ -112,13 +131,13 @@ class Application:
     def _on_message(self, pid, message):
         if message["type"] == "send" and message["payload"] == "script_ready":
             print(f"✔ resume(pid={pid})")
-            self._device.resume(pid)
-
-            threading.Thread(
-                target=self.write_input,
-                args=(pid, input_str),
-                daemon=True
-            ).start()
+            if (not attach) and pause_before_target_loaded:
+                self._device.resume(pid)
+                threading.Thread(
+                    target=self.write_input,
+                    args=(pid, input_str),
+                    daemon=True
+                ).start()
         else:
             print(f"⚡ message: pid={pid}, payload={message}")
 

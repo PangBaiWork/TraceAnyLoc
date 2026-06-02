@@ -1,2 +1,4 @@
 rust
 *.asm
+test2
+*.i64
