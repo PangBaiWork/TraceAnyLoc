@@ -16,7 +16,7 @@ if(Process.arch=="arm64"){
     talPath = "/data/data/com.taobao.taobao/libtal.so"
 }
 const cstr = Memory.allocUtf8String;
-
+const tal = Module.load(talPath);
 let interval = setInterval(() => {
 
     const mod = Process.findModuleByName(target);
@@ -26,7 +26,7 @@ let interval = setInterval(() => {
         return;
     }
     console.log(Process.platform);
-    const tal = Module.load(talPath);
+    
 
     const exp = (name, ret, args) =>
         new NativeFunction(tal.findExportByName(name), ret, args);
